@@ -1,5 +1,6 @@
 require("dotenv").config();
 
+const path = require("path");
 const express = require("express");
 const cors = require("cors");
 
@@ -42,20 +43,12 @@ app.use("/api/commitments", commitmentsRoutes);
 app.use("/api/conflicts", conflictsRoutes);
 app.use("/api/briefing", briefingRoutes);
 
+// Serve frontend static files from public/
+app.use(express.static(path.join(__dirname, "..", "public")));
+
 // Health check endpoint (used by Cloud Run)
-app.get("/", (_req, res) => {
-  res.status(200).json({
-    name: "CoFounder API",
-    version: "1.0.0",
-    description: "AI context-sync agent for startup founding teams",
-    status: "healthy",
-    endpoints: [
-      "POST /api/capture",
-      "GET  /api/commitments",
-      "GET  /api/conflicts",
-      "GET  /api/briefing/:founder",
-    ],
-  });
+app.get("/health", (_req, res) => {
+  res.status(200).json({ status: "healthy", version: "1.0.0" });
 });
 
 // 404 handler
@@ -75,11 +68,9 @@ app.use((err, _req, res, _next) => {
 
 app.listen(PORT, () => {
   console.log(`\n🚀 CoFounder API is running on port ${PORT}`);
-  console.log(`   Health check: http://localhost:${PORT}/`);
-  console.log(`   Capture:      POST http://localhost:${PORT}/api/capture`);
-  console.log(`   Commitments:  GET  http://localhost:${PORT}/api/commitments`);
-  console.log(`   Conflicts:    GET  http://localhost:${PORT}/api/conflicts`);
-  console.log(`   Briefing:     GET  http://localhost:${PORT}/api/briefing/:founder\n`);
+  console.log(`   Frontend:     http://localhost:${PORT}/`);
+  console.log(`   Health check: http://localhost:${PORT}/health`);
+  console.log(`   API:          http://localhost:${PORT}/api/*\n`);
 });
 
 module.exports = app;

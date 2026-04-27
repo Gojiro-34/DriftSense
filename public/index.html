@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>DriftSense - Mission Control</title>
+  <meta name="description" content="AI context-sync agent for startup founding teams. Track commitments, resolve conflicts, and stay aligned."/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <link href="/styles.css" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "inverse-primary":"#855300","surface-tint":"#ffb95f","primary-fixed":"#ffddb8","on-background":"#f0e0d1",
+            "secondary":"#c2c7cf","on-secondary-fixed-variant":"#42474e","on-primary-fixed-variant":"#653e00",
+            "inverse-on-surface":"#382f25","on-tertiary":"#00344a","on-error-container":"#ffdad6","background":"#19120a",
+            "surface-container-lowest":"#140d06","surface-container":"#261e15","on-tertiary-fixed":"#001e2d",
+            "on-surface":"#f0e0d1","surface-container-low":"#221a12","inverse-surface":"#f0e0d1",
+            "outline-variant":"#534434","on-tertiary-container":"#004966","on-tertiary-fixed-variant":"#004c6a",
+            "on-secondary-fixed":"#171c22","surface":"#19120a","on-secondary":"#2c3137","primary-fixed-dim":"#ffb95f",
+            "surface-container-highest":"#3c3329","on-primary-fixed":"#2a1700","primary-container":"#f59e0b",
+            "on-secondary-container":"#b7bcc4","primary":"#ffc174","surface-variant":"#3c3329","tertiary":"#8fd5ff",
+            "surface-container-high":"#31281f","tertiary-fixed-dim":"#7fd0ff","on-primary-container":"#613b00",
+            "on-surface-variant":"#d8c3ad","tertiary-container":"#1abdff","secondary-container":"#474c53",
+            "error-container":"#93000a","tertiary-fixed":"#c5e7ff","outline":"#a08e7a","on-primary":"#472a00",
+            "surface-dim":"#19120a","surface-bright":"#41382e","on-error":"#690005","error":"#ffb4ab",
+            "secondary-fixed":"#dee3eb","secondary-fixed-dim":"#c2c7cf"
+          },
+          borderRadius: { DEFAULT:"0.125rem", lg:"0.25rem", xl:"0.5rem", full:"0.75rem" },
+          spacing: { xs:"4px", lg:"24px", sm:"8px", xl:"32px", gutter:"20px", "container-margin":"32px", unit:"4px", md:"16px" },
+          fontFamily: {
+            "data-mono":["'JetBrains Mono'","monospace"], "h2":["Inter","sans-serif"],
+            "body-base":["Inter","sans-serif"], "h1":["Inter","sans-serif"],
+            "label-caps":["'JetBrains Mono'","monospace"], "h3":["Inter","sans-serif"], "body-sm":["Inter","sans-serif"]
+          },
+          fontSize: {
+            "data-mono":["13px",{lineHeight:"1.5",letterSpacing:"0.02em",fontWeight:"500"}],
+            "h2":["32px",{lineHeight:"1.2",letterSpacing:"-0.02em",fontWeight:"700"}],
+            "body-base":["15px",{lineHeight:"1.6",letterSpacing:"0",fontWeight:"400"}],
+            "h1":["40px",{lineHeight:"1.1",letterSpacing:"-0.03em",fontWeight:"800"}],
+            "label-caps":["11px",{lineHeight:"1",letterSpacing:"0.1em",fontWeight:"700"}],
+            "h3":["22px",{lineHeight:"1.3",letterSpacing:"-0.01em",fontWeight:"600"}],
+            "body-sm":["14px",{lineHeight:"1.5",letterSpacing:"0",fontWeight:"400"}]
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="font-body-base text-body-base bg-[#080c10] text-on-background antialiased flex flex-col min-h-screen">
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<!-- Mediation Modal -->
+<div id="mediation-modal"></div>
+
+<!-- Header -->
+<header class="flex justify-between items-center px-8 py-3 w-full border-b border-[#1e293b] bg-[#080c10] shadow-[0_0_10px_rgba(245,158,11,0.1)] fixed top-0 z-50 font-['Inter'] tracking-tight font-medium">
+  <div class="flex items-center gap-4">
+    <span class="material-symbols-outlined text-[#f59e0b]">rocket_launch</span>
+    <div>
+      <h1 class="text-xl font-black tracking-tighter text-[#f59e0b] uppercase">DriftSense</h1>
+      <p class="font-label-caps text-label-caps text-on-surface-variant">Mission Control for Founding Teams</p>
+    </div>
+  </div>
+  <div class="flex items-center gap-4">
+    <button class="founder-btn flex items-center gap-2 px-3 py-1.5 rounded-full border border-level-1 bg-level-1 hover:border-[#f59e0b] transition-colors text-sm font-medium" data-founder="paul">
+      <span>Paul</span>
+    </button>
+    <button class="founder-btn flex items-center gap-2 px-3 py-1.5 rounded-full border border-level-1 bg-level-1 hover:border-[#f59e0b] transition-colors text-sm font-medium" data-founder="sam">
+      <span>Sam</span>
+    </button>
+  </div>
+</header>
+
+<!-- Layout -->
+<div class="flex flex-1 pt-[72px]">
+  <!-- Sidebar -->
+  <nav class="hidden md:flex flex-col fixed left-0 top-[72px] h-[calc(100vh-72px)] w-64 border-r border-[#1e293b] bg-[#0d1218] font-['Inter'] text-sm uppercase tracking-widest font-semibold z-40">
+    <div class="p-6 border-b border-[#1e293b]">
+      <h2 class="text-on-surface text-sm font-bold tracking-wider">Command Center</h2>
+      <p class="text-on-surface-variant text-[11px] mt-1 font-['JetBrains_Mono'] font-medium">V0.1-Alpha</p>
+    </div>
+    <div class="flex-1 overflow-y-auto py-4">
+      <a class="nav-link active flex items-center gap-3 py-3 px-6 border-l-4 border-transparent hover:bg-[#1e293b] hover:text-slate-200 transition-all cursor-pointer" data-section="mission-control">
+        <span class="material-symbols-outlined">dashboard</span>Mission Control</a>
+      <a class="nav-link flex items-center gap-3 text-slate-500 py-3 px-6 border-l-4 border-transparent hover:bg-[#1e293b] hover:text-slate-200 hover:border-l-slate-700 transition-all cursor-pointer" data-section="conflict-resolution">
+        <span class="material-symbols-outlined">gavel</span>Conflict Resolution</a>
+      <a class="nav-link flex items-center gap-3 text-slate-500 py-3 px-6 border-l-4 border-transparent hover:bg-[#1e293b] hover:text-slate-200 hover:border-l-slate-700 transition-all cursor-pointer" data-section="commitment-ledger">
+        <span class="material-symbols-outlined">assignment_turned_in</span>Commitment Ledger</a>
+      <a class="nav-link flex items-center gap-3 text-slate-500 py-3 px-6 border-l-4 border-transparent hover:bg-[#1e293b] hover:text-slate-200 hover:border-l-slate-700 transition-all cursor-pointer" data-section="daily-briefing">
+        <span class="material-symbols-outlined">summarize</span>Daily Briefing</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="flex-1 md:ml-64 p-container-margin overflow-y-auto">
+    <div class="max-w-7xl mx-auto space-y-xl">
+
+      <!-- ═══ SECTION: Mission Control (default view — shows all) ═══ -->
+      <div id="mission-control" class="section-page active space-y-xl">
+
+        <!-- Today's Risks Feed -->
+        <section id="risk-feed-section">
+          <h2 class="font-h3 text-h3 text-on-surface mb-md flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#f59e0b]">crisis_alert</span> Today's Risks</h2>
+          <div id="risk-feed" class="bg-level-1 border border-level-1 rounded-lg p-md mb-xl"></div>
+        </section>
+
+        <!-- Active Conflicts -->
+        <section>
+          <h2 class="font-h3 text-h3 text-on-surface mb-lg flex items-center gap-2">
+            <span class="material-symbols-outlined text-error">warning</span> Active Conflicts</h2>
+          <div id="conflicts-list" class="grid grid-cols-1 lg:grid-cols-2 gap-gutter"></div>
+        </section>
+
+        <!-- Commitments + Capture (side by side) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+          <section class="lg:col-span-2 flex flex-col">
+            <h2 class="font-h3 text-h3 text-on-surface mb-md flex items-center gap-2">
+              <span class="material-symbols-outlined text-tertiary">check_circle</span> Commitments</h2>
+            <div class="bg-level-1 border border-level-1 rounded-lg flex-1 flex flex-col">
+              <div class="flex border-b border-level-1">
+                <button class="commitment-tab px-6 py-3 border-b-2 border-primary-container text-primary-container font-label-caps text-label-caps" data-filter="all">ALL</button>
+                <button class="commitment-tab px-6 py-3 border-b-2 border-transparent text-on-surface-variant hover:text-on-surface font-label-caps text-label-caps transition-colors" data-filter="paul">PAUL</button>
+                <button class="commitment-tab px-6 py-3 border-b-2 border-transparent text-on-surface-variant hover:text-on-surface font-label-caps text-label-caps transition-colors" data-filter="sam">SAM</button>
+              </div>
+              <div id="commitments-list" class="p-md space-y-sm overflow-y-auto max-h-[400px]"></div>
+            </div>
+          </section>
+
+          <section class="flex flex-col">
+            <h2 class="font-h3 text-h3 text-on-surface mb-md flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary-container">input</span> Capture Message</h2>
+            <div class="bg-level-1 border border-level-1 rounded-lg p-lg flex-1 flex flex-col gap-4">
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">SOURCE</label>
+                  <select id="capture-source" class="w-full bg-inset border border-level-1 rounded p-2.5 font-body-sm text-body-sm text-on-surface focus:border-primary-container outline-none appearance-none">
+                    <option value="gmail">Gmail</option><option value="slack">Slack</option><option value="notion">Notion</option><option value="manual">Manual</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">SENDER</label>
+                  <select id="capture-sender" class="w-full bg-inset border border-level-1 rounded p-2.5 font-body-sm text-body-sm text-on-surface focus:border-primary-container outline-none appearance-none">
+                    <option value="paul">Paul</option><option value="sam">Sam</option>
+                  </select>
+                </div>
+              </div>
+              <div class="flex-1 flex flex-col">
+                <label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">RAW TEXT</label>
+                <textarea id="capture-text" class="w-full flex-1 bg-inset border border-level-1 rounded p-3 font-body-sm text-body-sm text-on-surface outline-none resize-none" placeholder="Paste message or transcript here..." rows="4"></textarea>
+              </div>
+              <button id="capture-btn" class="w-full bg-primary-container text-[#19120a] font-bold tracking-wide py-3 px-4 rounded hover:shadow-[0_0_12px_rgba(245,158,11,0.6)] transition-all flex items-center justify-center gap-2 mt-auto">
+                <span class="material-symbols-outlined">auto_awesome</span> Analyze with AI</button>
+              <div id="analysis-progress"></div>
+              <div id="analysis-result"></div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Daily Briefing -->
+        <section>
+          <h2 class="font-h3 text-h3 text-on-surface mb-lg flex items-center gap-2">
+            <span class="material-symbols-outlined text-secondary-fixed">today</span> Daily Briefing</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+            <div id="briefing-paul" class="bg-level-1 border border-level-1 rounded-lg p-lg glow-hover transition-all"></div>
+            <div id="briefing-sam" class="bg-level-1 border border-level-1 rounded-lg p-lg glow-hover transition-all"></div>
+          </div>
+        </section>
+      </div>
+
+      <!-- ═══ SECTION: Conflict Resolution (dedicated page) ═══ -->
+      <div id="conflict-resolution" class="section-page space-y-xl">
+        <section>
+          <h2 class="font-h3 text-h3 text-on-surface mb-lg flex items-center gap-2">
+            <span class="material-symbols-outlined text-error">gavel</span> Conflict Resolution Center</h2>
+          <p class="text-on-surface-variant text-body-sm mb-lg">All detected misalignments between founders. Conflicts are auto-detected by AI when commitments contradict each other.</p>
+          <div id="conflicts-list-full" class="grid grid-cols-1 lg:grid-cols-2 gap-gutter"></div>
+        </section>
+      </div>
+
+      <!-- ═══ SECTION: Commitment Ledger (dedicated page) ═══ -->
+      <div id="commitment-ledger" class="section-page space-y-xl">
+        <section>
+          <h2 class="font-h3 text-h3 text-on-surface mb-lg flex items-center gap-2">
+            <span class="material-symbols-outlined text-tertiary">assignment_turned_in</span> Commitment Ledger</h2>
+          <p class="text-on-surface-variant text-body-sm mb-lg">Complete history of all commitments, decisions, and promises made by the founding team.</p>
+          <div class="bg-level-1 border border-level-1 rounded-lg flex flex-col">
+            <div class="flex border-b border-level-1">
+              <button class="commitment-tab-full px-6 py-3 border-b-2 border-primary-container text-primary-container font-label-caps text-label-caps" data-filter="all">ALL</button>
+              <button class="commitment-tab-full px-6 py-3 border-b-2 border-transparent text-on-surface-variant hover:text-on-surface font-label-caps text-label-caps transition-colors" data-filter="paul">PAUL</button>
+              <button class="commitment-tab-full px-6 py-3 border-b-2 border-transparent text-on-surface-variant hover:text-on-surface font-label-caps text-label-caps transition-colors" data-filter="sam">SAM</button>
+            </div>
+            <div id="commitments-list-full" class="p-md space-y-sm overflow-y-auto max-h-[600px]"></div>
+          </div>
+        </section>
+      </div>
+
+      <!-- ═══ SECTION: Daily Briefing (dedicated page) ═══ -->
+      <div id="daily-briefing" class="section-page space-y-xl">
+        <section>
+          <h2 class="font-h3 text-h3 text-on-surface mb-lg flex items-center gap-2">
+            <span class="material-symbols-outlined text-secondary-fixed">summarize</span> Daily Briefing</h2>
+          <p class="text-on-surface-variant text-body-sm mb-lg">AI-generated daily summary for each founder. Cached once per day — refreshes automatically tomorrow.</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+            <div id="briefing-paul-full" class="bg-level-1 border border-level-1 rounded-lg p-lg glow-hover transition-all"></div>
+            <div id="briefing-sam-full" class="bg-level-1 border border-level-1 rounded-lg p-lg glow-hover transition-all"></div>
+          </div>
+        </section>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="/ux.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 const express = require("express");
 const { db, admin } = require("../config/firebase");
-const { callGemini } = require("../config/gemini");
+const { generateText } = require("../config/gemini");
 
 const router = express.Router();
 
@@ -138,7 +138,7 @@ Respond with ONLY a valid JSON object in this exact format:
 Keep actionItems to a focused list of concrete next steps.
 Respond with ONLY the JSON object, no markdown formatting, no code fences, no extra text.`;
 
-    const geminiResponse = await callGemini(prompt);
+    const geminiResponse = await generateText(prompt);
 
     let briefingData;
     try {

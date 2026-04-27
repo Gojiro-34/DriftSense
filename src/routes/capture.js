@@ -1,6 +1,6 @@
 const express = require("express");
 const { db, admin } = require("../config/firebase");
-const { callGemini } = require("../config/gemini");
+const { generateText } = require("../config/gemini");
 
 const router = express.Router();
 
@@ -82,7 +82,7 @@ If the message does NOT contain any commitment, decision, or promise, respond wi
 
 Respond with ONLY the JSON object, no markdown formatting, no code fences, no extra text.`;
 
-    const geminiResponse = await callGemini(prompt);
+    const geminiResponse = await generateText(prompt);
 
     // Parse Gemini's JSON response
     let result;
