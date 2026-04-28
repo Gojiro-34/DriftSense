@@ -229,6 +229,7 @@ GET /api/briefing/sam
 | Firebase | Real-time database |
 | Google Cloud Run | Container hosting and deployment |
 | Antigravity | AI-integrated IDE used for development |
+| Google gemini | Brainstorming, debugging |
 | Express 5 | Web framework |
 | dotenv | Environment variable management |
 | cors | Cross-origin request handling |
