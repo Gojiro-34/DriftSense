@@ -2,11 +2,11 @@
 // Premium interactions: analysis progress, mediation modal, risk feed, checkbox animations
 
 const PROGRESS_STEPS = [
-  { icon: "description", text: "Reading commitments..." },
-  { icon: "compare_arrows", text: "Comparing founder priorities..." },
+  { icon: "file-text", text: "Reading commitments..." },
+  { icon: "arrows-horizontal", text: "Comparing founder priorities..." },
   { icon: "search", text: "Detecting promise mismatches..." },
   { icon: "shield", text: "Evaluating trust risk..." },
-  { icon: "auto_fix_high", text: "Generating mediation plan..." }
+  { icon: "wrench", text: "Generating mediation plan..." }
 ];
 
 // ─── Analysis Progress Panel ─────────────────────────────────────────────────
@@ -14,12 +14,12 @@ function showAnalysisProgress() {
   const el = document.getElementById("analysis-progress");
   el.innerHTML = `<div class="analysis-progress">
     <div class="flex items-center gap-2 mb-3">
-      <span class="spinner spinner-amber" style="width:14px;height:14px"></span>
-      <span class="font-label-caps text-label-caps text-[#f59e0b]" id="progress-label">ANALYZING ALIGNMENT...</span>
+      <span class="spinner spinner-accent"></span>
+      <span class="font-mono text-label text-accent" id="progress-label">ANALYZING ALIGNMENT...</span>
     </div>
     <div id="progress-steps">${PROGRESS_STEPS.map((s, i) =>
       `<div class="progress-step" data-step="${i}">
-        <span class="material-symbols-outlined" style="font-size:16px">${s.icon}</span>
+        ${icon(s.icon, { size: 15 })}
         <span>${s.text}</span>
       </div>`).join("")}
     </div>
@@ -32,7 +32,7 @@ function animateProgressSteps() {
   let i = 0;
   const iv = setInterval(() => {
     if (i > 0 && steps[i - 1]) { steps[i - 1].classList.remove("active"); steps[i - 1].classList.add("done");
-      steps[i - 1].querySelector(".material-symbols-outlined").textContent = "check_circle"; }
+      steps[i - 1].querySelector(".icon").outerHTML = icon("check-circle", { size: 15 }); }
     if (i < steps.length) { steps[i].classList.add("active"); i++; }
     else { clearInterval(iv);
       const lbl = document.getElementById("progress-label");
@@ -55,38 +55,39 @@ function showAnalysisResult(apiResult) {
   const c = apiResult.commitment;
   if (!extracted || !c) {
     el.innerHTML = `<div class="result-card">
-      <div class="flex items-center gap-2 mb-2"><span class="material-symbols-outlined text-[#10b981]">verified</span>
-        <span class="font-h3 text-[18px] font-bold text-on-surface">No Alignment Risk Detected</span></div>
-      <p class="text-body-sm text-on-surface-variant">This message doesn't contain commitments or promises that could cause founder misalignment.</p>
+      <div class="flex items-center gap-2 mb-2 text-ok">${icon("shield-check", { size: 18 })}
+        <span class="font-h3 text-h3 text-ink">No Alignment Risk Detected</span></div>
+      <p class="text-body text-ink-dim">This message doesn't contain commitments or promises that could cause founder misalignment.</p>
     </div>`;
     return;
   }
   const isConflictRisk = (c.relatedTo === "investor" || c.relatedTo === "customer");
+  const tone = isConflictRisk ? "text-danger" : "text-accent";
   el.innerHTML = `<div class="result-card ${isConflictRisk ? "result-conflict" : ""}">
     <div class="result-section">
-      <div class="flex items-center gap-2 mb-1"><span class="material-symbols-outlined text-${isConflictRisk ? "error" : "[#f59e0b]"}" style="font-size:20px">${isConflictRisk ? "warning" : "auto_awesome"}</span>
-        <span class="font-label-caps text-label-caps text-${isConflictRisk ? "error" : "[#f59e0b]"}">FOUNDER ALIGNMENT ALERT</span></div>
-      <h3 class="font-h3 text-[18px] font-bold text-on-surface mt-1">${isConflictRisk ? "External Promise vs Internal Priority Drift" : "Commitment Captured"}</h3>
+      <div class="flex items-center gap-2 mb-1 ${tone}">${icon(isConflictRisk ? "alert-triangle" : "cpu", { size: 17 })}
+        <span class="font-mono text-label ${tone}">FOUNDER ALIGNMENT ALERT</span></div>
+      <h3 class="font-h3 text-h3 text-ink mt-1">${isConflictRisk ? "External Promise vs Internal Priority Drift" : "Commitment Captured"}</h3>
     </div>
     <div class="result-section">
-      <p class="font-label-caps text-[10px] text-on-surface-variant mb-1">DETECTED PATTERN</p>
-      <p class="text-body-sm text-on-surface">${c.owner || "Founder"} committed: <strong>"${c.text}"</strong></p>
-      ${c.deadline ? `<p class="text-body-sm text-on-surface-variant mt-1">Deadline: ${c.deadline}</p>` : ""}
+      <p class="font-mono text-[10px] tracking-wide text-ink-faint mb-1">DETECTED PATTERN</p>
+      <p class="text-body text-ink">${c.owner || "Founder"} committed: <strong>"${c.text}"</strong></p>
+      ${c.deadline ? `<p class="text-body text-ink-dim mt-1">Deadline: ${c.deadline}</p>` : ""}
     </div>
     ${isConflictRisk ? `<div class="result-section">
-      <p class="font-label-caps text-[10px] text-on-surface-variant mb-1">RISK LEVEL</p>
-      <span class="inline-flex items-center gap-1 border border-error bg-error/10 text-error font-label-caps text-label-caps px-2 py-1 rounded">
-        <span class="material-symbols-outlined" style="font-size:14px">priority_high</span> HIGH</span>
-      <p class="text-body-sm text-on-surface-variant mt-2">Client expectation risk + potential internal resentment if priorities aren't aligned.</p>
+      <p class="font-mono text-[10px] tracking-wide text-ink-faint mb-1">RISK LEVEL</p>
+      <span class="inline-flex items-center gap-1 border border-danger bg-danger-bg text-danger font-mono text-label px-2 py-1 rounded">
+        ${icon("alert-circle", { size: 12 })} HIGH</span>
+      <p class="text-body text-ink-dim mt-2">Client expectation risk + potential internal resentment if priorities aren't aligned.</p>
     </div>
     <div class="result-section">
-      <p class="font-label-caps text-[10px] text-on-surface-variant mb-1">BEST NEXT MOVE</p>
-      <p class="text-body-sm text-on-surface font-medium">Immediate founder sync within 24 hours.</p>
+      <p class="font-mono text-[10px] tracking-wide text-ink-faint mb-1">BEST NEXT MOVE</p>
+      <p class="text-body text-ink font-medium">Immediate founder sync within 24 hours.</p>
     </div>` : ""}
     <div>
-      <p class="font-label-caps text-[10px] text-on-surface-variant mb-2">SUGGESTED ACTIONS</p>
+      <p class="font-mono text-[10px] tracking-wide text-ink-faint mb-2">SUGGESTED ACTIONS</p>
       <ul class="space-y-2">${["Clarify whether promise still stands", "Reconfirm current priorities", "Assign accountable owner", "Update external expectations if needed"].map(a =>
-        `<li class="flex items-center gap-2 text-body-sm text-on-surface"><span class="material-symbols-outlined text-[#f59e0b]" style="font-size:14px">chevron_right</span>${a}</li>`).join("")}
+        `<li class="flex items-center gap-2 text-body text-ink"><span class="text-accent">${icon("chevron-right", { size: 13 })}</span>${a}</li>`).join("")}
       </ul>
     </div>
   </div>`;
@@ -106,43 +107,43 @@ function openMediation(conflict) {
   modal.innerHTML = `<div class="modal-overlay" onclick="if(event.target===this)closeMediation()">
     <div class="modal-content">
       <div class="modal-header">
-        <div><div class="flex items-center gap-2">
-          <span class="material-symbols-outlined text-[#f59e0b]">gavel</span>
-          <span class="font-label-caps text-label-caps text-[#f59e0b]">MEDIATION SESSION</span></div>
-          <h2 class="font-h3 text-h3 text-on-surface mt-1">${title}</h2>
+        <div><div class="flex items-center gap-2 text-danger">
+          ${icon("gavel", { size: 15 })}
+          <span class="font-mono text-label">MEDIATION SESSION</span></div>
+          <h2 class="font-h3 text-h3 text-ink mt-1">${title}</h2>
         </div>
-        <button onclick="closeMediation()" class="text-on-surface-variant hover:text-on-surface transition-colors">
-          <span class="material-symbols-outlined">close</span></button>
+        <button onclick="closeMediation()" class="text-ink-faint hover:text-ink transition-colors duration-150">
+          ${icon("x", { size: 18 })}</button>
       </div>
       <div class="modal-body space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="perspective-card paul-perspective">
             <div class="flex items-center gap-2 mb-3">
-              <div class="w-7 h-7 rounded-full bg-[#f59e0b] flex items-center justify-center text-[#19120a] text-xs font-black">P</div>
-              <span class="font-label-caps text-label-caps text-[#f59e0b]">PAUL'S PERSPECTIVE</span></div>
-            <p class="text-body-sm text-on-surface">"${paulSaid}"</p>
+              <div class="w-6 h-6 rounded-full bg-paul flex items-center justify-center text-[11px] font-bold" style="color:#2a1700">P</div>
+              <span class="font-mono text-label text-paul">PAUL'S PERSPECTIVE</span></div>
+            <p class="text-body text-ink">"${paulSaid}"</p>
           </div>
           <div class="perspective-card sam-perspective">
             <div class="flex items-center gap-2 mb-3">
-              <div class="w-7 h-7 rounded-full bg-[#1abdff] flex items-center justify-center text-[#001e2d] text-xs font-black">S</div>
-              <span class="font-label-caps text-label-caps text-[#1abdff]">SAM'S PERSPECTIVE</span></div>
-            <p class="text-body-sm text-on-surface">"${samSaid}"</p>
+              <div class="w-6 h-6 rounded-full bg-sam flex items-center justify-center text-[11px] font-bold" style="color:#001e2d">S</div>
+              <span class="font-mono text-label text-sam">SAM'S PERSPECTIVE</span></div>
+            <p class="text-body text-ink">"${samSaid}"</p>
           </div>
         </div>
-        <div class="bg-inset border border-level-1 rounded-lg p-4">
-          <p class="font-label-caps text-[10px] text-on-surface-variant mb-2">ROOT CAUSE</p>
-          <p class="text-body-sm text-on-surface font-medium">No shared commitment lock system — external promises made without internal priority validation.</p>
+        <div class="bg-inset border border-border rounded p-4">
+          <p class="font-mono text-[10px] tracking-wide text-ink-faint mb-2">ROOT CAUSE</p>
+          <p class="text-body text-ink font-medium">No shared commitment lock system — external promises made without internal priority validation.</p>
         </div>
         <div>
-          <p class="font-label-caps text-label-caps text-on-surface mb-3">GUIDED RESOLUTION</p>
+          <p class="font-mono text-label text-ink mb-3">GUIDED RESOLUTION</p>
           <div class="space-y-3">${[
             "Decide if promise remains active or needs to be walked back",
             "Re-rank priorities together with shared visibility",
             "Set rule for future external commitments",
             "Communicate unified message to stakeholders"
           ].map((s, i) => `<div class="flex items-start gap-3">
-            <div class="w-6 h-6 rounded-full border border-[#f59e0b] flex items-center justify-center text-[#f59e0b] text-xs font-bold flex-shrink-0 mt-0.5">${i + 1}</div>
-            <p class="text-body-sm text-on-surface">${s}</p></div>`).join("")}
+            <div class="w-5 h-5 rounded-full border border-accent flex items-center justify-center text-accent text-[11px] font-semibold flex-shrink-0 mt-0.5">${i + 1}</div>
+            <p class="text-body text-ink">${s}</p></div>`).join("")}
           </div>
         </div>
       </div>
@@ -181,12 +182,12 @@ function buildRiskFeed(commitments, conflicts) {
 
   paulCommits.forEach(pc => {
     if (pc.relatedTo === "investor" || pc.relatedTo === "customer") {
-      risks.push({ severity: "high", icon: "warning", text: `Paul promised "${pc.text}" — verify Sam's sprint includes this` });
+      risks.push({ severity: "high", icon: "alert-triangle", text: `Paul promised "${pc.text}" — verify Sam's sprint includes this` });
     }
   });
   samCommits.forEach(sc => {
     if (sc.relatedTo === "feature") {
-      risks.push({ severity: "medium", icon: "swap_horiz", text: `Sam changed priority: "${sc.text}" — check external commitments` });
+      risks.push({ severity: "medium", icon: "repeat", text: `Sam changed priority: "${sc.text}" — check external commitments` });
     }
   });
   conflictArr.forEach(cf => {
@@ -194,18 +195,18 @@ function buildRiskFeed(commitments, conflicts) {
   });
 
   const noOwner = commitArr.filter(c => !(c.owner || c.founder));
-  if (noOwner.length) risks.push({ severity: "medium", icon: "person_off", text: `${noOwner.length} commitment(s) missing owner assignment` });
+  if (noOwner.length) risks.push({ severity: "medium", icon: "user-x", text: `${noOwner.length} commitment(s) missing owner assignment` });
 
   if (!risks.length) {
-    el.innerHTML = `<div class="flex items-center gap-3 py-2 text-on-surface-variant"><span class="material-symbols-outlined text-[#10b981]">verified</span><span class="text-body-sm">No risks detected today. Founders are aligned.</span></div>`;
+    el.innerHTML = `<div class="flex items-center gap-3 py-2 text-ink-dim"><span class="text-ok">${icon("shield-check", { size: 16 })}</span><span class="text-body">No risks detected today. Founders are aligned.</span></div>`;
     return;
   }
   el.innerHTML = risks.map(r => {
-    const dotColor = r.severity === "high" ? "#ef4444" : r.severity === "medium" ? "#f59e0b" : "#3b82f6";
+    const dotColor = r.severity === "high" ? "#d1584c" : r.severity === "medium" ? "#c99a3f" : "#3f8fc9";
     return `<div class="risk-item risk-${r.severity}">
       <div class="risk-dot" style="background:${dotColor}"></div>
-      <div class="flex-1"><p class="text-body-sm text-on-surface">${r.text}</p></div>
-      <span class="material-symbols-outlined text-on-surface-variant" style="font-size:16px">${r.icon}</span>
+      <div class="flex-1"><p class="text-body text-ink">${r.text}</p></div>
+      <span class="text-ink-faint">${icon(r.icon, { size: 15 })}</span>
     </div>`;
   }).join("");
 }

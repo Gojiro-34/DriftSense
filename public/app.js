@@ -11,8 +11,8 @@ function showToast(message, type = "success") {
   const container = document.getElementById("toast-container");
   const toast = document.createElement("div");
   toast.className = `toast toast-${type}`;
-  const icons = { success: "check_circle", error: "error", info: "info" };
-  toast.innerHTML = `<span class="material-symbols-outlined" style="font-size:18px">${icons[type] || "info"}</span>${message}`;
+  const names = { success: "check-circle", error: "x-circle", info: "info" };
+  toast.innerHTML = `${icon(names[type] || "info", { size: 17 })}${message}`;
   container.appendChild(toast);
   setTimeout(() => { toast.style.animation = "slideOut 0.3s ease-in forwards"; setTimeout(() => toast.remove(), 300); }, 3000);
 }
@@ -26,7 +26,7 @@ function skeletonCards(count, container) {
 
 function skeletonRows(count, container) {
   container.innerHTML = Array(count).fill("").map(() =>
-    `<div class="bg-inset border border-level-1 rounded p-md flex items-center justify-between" style="min-height:56px"><div class="flex items-center gap-4 flex-1"><div class="skeleton" style="width:32px;height:32px;border-radius:50%"></div><div class="flex-1"><div class="skeleton skeleton-text" style="width:70%"></div><div class="skeleton" style="width:50px;height:12px"></div></div></div></div>`
+    `<div class="bg-inset border border-border rounded p-3 flex items-center justify-between" style="min-height:52px"><div class="flex items-center gap-4 flex-1"><div class="skeleton" style="width:28px;height:28px;border-radius:50%"></div><div class="flex-1"><div class="skeleton skeleton-text" style="width:70%"></div><div class="skeleton" style="width:50px;height:12px"></div></div></div></div>`
   ).join("");
 }
 
@@ -48,7 +48,7 @@ async function fetchConflicts() {
     if (typeof buildRiskFeed === "function") buildRiskFeed(allCommitments, lastConflicts);
   } catch (err) {
     console.error("fetchConflicts:", err);
-    const errHtml = `<div class="empty-state"><span class="material-symbols-outlined">cloud_off</span><p>Failed to load conflicts</p></div>`;
+    const errHtml = `<div class="empty-state">${icon("cloud-off", { size: 32 })}<p>Failed to load conflicts</p></div>`;
     container.innerHTML = errHtml;
     if (containerFull) containerFull.innerHTML = errHtml;
   }
@@ -68,7 +68,7 @@ async function fetchCommitments() {
     renderCommitments();
   } catch (err) {
     console.error("fetchCommitments:", err);
-    const errHtml = `<div class="empty-state"><span class="material-symbols-outlined">cloud_off</span><p>Failed to load commitments</p></div>`;
+    const errHtml = `<div class="empty-state">${icon("cloud-off", { size: 32 })}<p>Failed to load commitments</p></div>`;
     container.innerHTML = errHtml;
     if (containerFull) containerFull.innerHTML = errHtml;
   }
@@ -96,7 +96,7 @@ async function fetchBriefings() {
     if (samElFull) renderBriefing("sam", samData, samElFull);
   } catch (err) {
     console.error("fetchBriefings:", err);
-    const errHtml = `<div class="empty-state"><span class="material-symbols-outlined">cloud_off</span><p>Failed to load</p></div>`;
+    const errHtml = `<div class="empty-state">${icon("cloud-off", { size: 32 })}<p>Failed to load</p></div>`;
     paulEl.innerHTML = errHtml; samEl.innerHTML = errHtml;
     if (paulElFull) paulElFull.innerHTML = errHtml;
     if (samElFull) samElFull.innerHTML = errHtml;
@@ -111,7 +111,7 @@ async function captureMessage() {
   const text = textEl.value.trim();
   if (!text) { showToast("Please enter a message to analyze.", "error"); return; }
   btn.disabled = true;
-  btn.innerHTML = `<span class="spinner"></span> Analyzing Alignment...`;
+  btn.innerHTML = `<span class="spinner" style="border-color:rgba(4,33,29,0.35);border-top-color:transparent"></span> Analyzing Alignment...`;
   btn.style.opacity = "0.7";
   clearAnalysisResult();
   showAnalysisProgress();
@@ -141,57 +141,57 @@ async function captureMessage() {
   } finally {
     btn.disabled = false;
     btn.style.opacity = "1";
-    btn.innerHTML = `<span class="material-symbols-outlined">auto_awesome</span> Analyze with AI`;
+    btn.innerHTML = `${icon("cpu", { size: 16 })} Analyze with AI`;
   }
 }
 
 // ─── Renderers ───────────────────────────────────────────────────────────────
 function renderConflicts(conflicts, container) {
   if (!conflicts.length) {
-    container.innerHTML = `<div class="empty-state lg:col-span-2"><span class="material-symbols-outlined">verified</span><p class="text-lg font-semibold text-on-surface-variant">No active conflicts</p><p class="text-sm text-outline mt-1">Your founding team is aligned!</p></div>`;
+    container.innerHTML = `<div class="empty-state lg:col-span-2">${icon("shield-check", { size: 30, className: "text-ok" })}<p class="text-[15px] font-semibold text-ink-dim">No active conflicts</p><p class="text-body text-ink-faint mt-1">Your founding team is aligned.</p></div>`;
     return;
   }
   container.innerHTML = conflicts.map(c => {
     const sev = (c.severity || "medium").toUpperCase();
-    const borderClass = sev === "HIGH" ? "border-error/50" : sev === "MEDIUM" ? "border-[#f59e0b]/50" : "border-outline-variant";
-    const badgeBorder = sev === "HIGH" ? "border-error bg-error/10 text-error" : sev === "MEDIUM" ? "border-[#f59e0b] bg-[#f59e0b]/10 text-[#f59e0b]" : "border-outline bg-outline/10 text-outline";
-    const icon = sev === "HIGH" ? "priority_high" : sev === "MEDIUM" ? "warning" : "info";
+    const borderClass = sev === "HIGH" ? "border-danger/60" : sev === "MEDIUM" ? "border-caution/60" : "border-border-strong";
+    const badgeClass = sev === "HIGH" ? "border-danger bg-danger-bg text-danger" : sev === "MEDIUM" ? "border-caution bg-caution-bg text-caution" : "border-border-strong text-ink-dim";
+    const iconName = sev === "HIGH" ? "alert-circle" : sev === "MEDIUM" ? "alert-triangle" : "info";
     const title = c.title || c.description || "Conflict Detected";
     const paulSaid = c.paulSaid || c.commitmentA || "";
     const samSaid = c.samSaid || c.commitmentB || "";
-    return `<div class="bg-level-1 border ${borderClass} rounded-lg p-md relative overflow-hidden group">
-      <div class="flex justify-between items-start mb-sm"><div>
-        <div class="inline-flex items-center gap-1 border ${badgeBorder} font-label-caps text-[10px] px-1.5 py-0.5 rounded mb-1"><span class="material-symbols-outlined text-[12px]">${icon}</span> ${sev}</div>
-        <h3 class="font-data-mono text-[15px] font-semibold text-on-surface mt-1">${title}</h3>
+    return `<div class="bg-panel border ${borderClass} rounded p-4">
+      <div class="flex justify-between items-start mb-2"><div>
+        <div class="inline-flex items-center gap-1 border ${badgeClass} font-mono text-[10px] px-1.5 py-0.5 rounded mb-1.5">${icon(iconName, { size: 11 })} ${sev}</div>
+        <h3 class="font-mono text-[14px] font-semibold text-ink mt-1">${title}</h3>
       </div></div>
-      <div class="space-y-3">
-        ${paulSaid ? `<div class="bg-inset border border-level-1 rounded p-sm"><p class="font-data-mono text-[10px] font-bold text-on-surface-variant mb-1 uppercase tracking-widest">Paul said:</p><p class="font-data-mono text-[13px] leading-relaxed text-on-surface">"${paulSaid}"</p></div>` : ""}
-        ${samSaid ? `<div class="bg-inset border border-level-1 rounded p-sm"><p class="font-data-mono text-[10px] font-bold text-on-surface-variant mb-1 uppercase tracking-widest">Sam said:</p><p class="font-data-mono text-[13px] leading-relaxed text-on-surface">"${samSaid}"</p></div>` : ""}
+      <div class="space-y-2.5">
+        ${paulSaid ? `<div class="bg-inset border border-border rounded p-2.5"><p class="font-mono text-[10px] font-semibold text-ink-faint mb-1 tracking-wide">PAUL SAID</p><p class="font-mono text-[12.5px] leading-relaxed text-ink">"${paulSaid}"</p></div>` : ""}
+        ${samSaid ? `<div class="bg-inset border border-border rounded p-2.5"><p class="font-mono text-[10px] font-semibold text-ink-faint mb-1 tracking-wide">SAM SAID</p><p class="font-mono text-[12.5px] leading-relaxed text-ink">"${samSaid}"</p></div>` : ""}
       </div>
-      <button onclick='openMediation(${JSON.stringify(c).replace(/'/g,"&#39;")})' class="mt-md w-full border border-primary-container text-primary-container font-label-caps text-label-caps py-2.5 rounded hover:bg-primary-container/10 transition-colors flex items-center justify-center gap-2"><span class="material-symbols-outlined" style="font-size:16px">gavel</span>ENTER MEDIATION</button>
+      <button onclick='openMediation(${JSON.stringify(c).replace(/'/g,"&#39;")})' class="mt-4 w-full border border-accent text-accent font-mono text-label py-2.5 rounded hover:bg-accent/10 transition-colors duration-150 flex items-center justify-center gap-2">${icon("gavel", { size: 14 })}ENTER MEDIATION</button>
     </div>`;
   }).join("");
 }
 
 function buildCommitmentHtml(filtered) {
   if (!filtered.length) {
-    return `<div class="empty-state"><span class="material-symbols-outlined">assignment</span><p class="text-on-surface-variant">No commitments found</p></div>`;
+    return `<div class="empty-state">${icon("clipboard", { size: 28 })}<p class="text-ink-dim">No commitments found</p></div>`;
   }
   return filtered.map(c => {
     const owner = (c.owner || c.founder || "?").toLowerCase();
     const initial = owner.charAt(0).toUpperCase();
-    const avatarBg = owner === "paul" || initial === "P" ? "#f59e0b" : "#1abdff";
-    const avatarText = owner === "paul" || initial === "P" ? "#19120a" : "#001e2d";
+    const avatarBg = owner === "paul" || initial === "P" ? "#c98a3a" : "#3f8fc9";
+    const avatarText = owner === "paul" || initial === "P" ? "#2a1700" : "#001e2d";
     const src = (c.source || "manual").toUpperCase();
     const status = (c.status || "pending").toUpperCase();
-    const statusClass = status === "DONE" ? "border-[#14b8a6] bg-[#14b8a6]/10 text-[#14b8a6]" : status === "OVERDUE" ? "border-error bg-error/10 text-error" : "border-secondary-fixed bg-secondary-fixed/10 text-secondary-fixed";
-    return `<div class="bg-inset border border-level-1 rounded p-md flex items-center justify-between glow-hover transition-all">
-      <div class="flex items-center gap-4">
-        <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black" style="background:${avatarBg};color:${avatarText}">${initial}</div>
-        <div><p class="font-medium text-on-surface font-body-sm text-body-sm">${c.text || ""}</p>
-        <span class="font-data-mono text-[10px] tracking-widest font-semibold text-on-surface-variant bg-level-1 px-1.5 py-0.5 rounded border border-level-1">${src}</span></div>
+    const statusClass = status === "DONE" ? "border-ok bg-ok-bg text-ok" : status === "OVERDUE" ? "border-danger bg-danger-bg text-danger" : "border-border-strong text-ink-dim";
+    return `<div class="bg-inset border border-border rounded p-3 flex items-center justify-between">
+      <div class="flex items-center gap-3.5">
+        <div class="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0" style="background:${avatarBg};color:${avatarText}">${initial}</div>
+        <div><p class="font-medium text-ink text-body">${c.text || ""}</p>
+        <span class="font-mono text-[10px] tracking-wide font-medium text-ink-faint bg-panel px-1.5 py-0.5 rounded border border-border">${src}</span></div>
       </div>
-      <span class="border ${statusClass} font-label-caps text-[10px] px-2 py-1 rounded whitespace-nowrap">${status}</span>
+      <span class="border ${statusClass} font-mono text-[10px] px-2 py-1 rounded whitespace-nowrap flex-shrink-0 ml-3">${status}</span>
     </div>`;
   }).join("");
 }
@@ -207,10 +207,10 @@ function renderCommitments() {
 }
 
 function renderBriefing(founder, data, el) {
-  if (!data) { el.innerHTML = `<div class="empty-state"><span class="material-symbols-outlined">cloud_off</span><p>Failed to load</p></div>`; return; }
+  if (!data) { el.innerHTML = `<div class="empty-state">${icon("cloud-off", { size: 28 })}<p>Failed to load</p></div>`; return; }
   const isPaul = founder === "paul";
-  const avatarBg = isPaul ? "#f59e0b" : "#1abdff";
-  const avatarText = isPaul ? "#19120a" : "#001e2d";
+  const avatarBg = isPaul ? "#c98a3a" : "#3f8fc9";
+  const avatarText = isPaul ? "#2a1700" : "#001e2d";
   const initial = isPaul ? "P" : "S";
   const name = isPaul ? "Paul" : "Sam";
   const role = isPaul ? "Business Focus" : "Technical Focus";
@@ -218,16 +218,16 @@ function renderBriefing(founder, data, el) {
   const items = data.actionItems || data.briefing?.actionItems || [];
   const commitments = data.pendingCommitments || data.briefing?.urgentItems || [];
   el.innerHTML = `
-    <div class="flex items-center gap-4 mb-5 pb-5 border-b border-level-1">
-      <div class="w-12 h-12 rounded-full flex items-center justify-center text-lg font-black" style="background:${avatarBg};color:${avatarText}">${initial}</div>
-      <div><h3 class="font-h3 text-[20px] font-bold text-on-surface">${name}</h3>
-      <span class="font-label-caps text-label-caps text-on-surface-variant mt-1 block">${role}</span></div>
+    <div class="flex items-center gap-3.5 mb-4 pb-4 border-b border-border">
+      <div class="w-10 h-10 rounded-full flex items-center justify-center text-[15px] font-bold flex-shrink-0" style="background:${avatarBg};color:${avatarText}">${initial}</div>
+      <div><h3 class="font-h3 text-[17px] font-bold text-ink">${name}</h3>
+      <span class="font-mono text-label text-ink-faint mt-0.5 block">${role}</span></div>
     </div>
-    <div class="mb-6"><p class="font-body-base text-body-base text-on-surface-variant italic border-l-2 border-primary-container pl-4 py-2 bg-primary-container/5">"${summary}"</p></div>
-    ${items.length ? `<h4 class="font-label-caps text-label-caps text-on-surface mb-4">ACTION ITEMS</h4>
-    <ul class="space-y-4">${items.map(item => `<li class="action-item flex items-start gap-3"><input type="checkbox" class="action-checkbox mt-1 bg-inset border-level-1 rounded text-primary-container cursor-pointer"/><span class="font-body-sm text-body-sm text-on-surface leading-snug">${item}</span></li>`).join("")}</ul>` : ""}
-    ${commitments.length ? `<h4 class="font-label-caps text-label-caps text-on-surface mb-4 mt-6">PENDING COMMITMENTS</h4>
-    <ul class="space-y-2">${commitments.map(c => `<li class="text-body-sm text-on-surface-variant flex items-center gap-2"><span class="material-symbols-outlined text-[14px] text-primary-container">chevron_right</span>${typeof c === "string" ? c : c.text || ""}</li>`).join("")}</ul>` : ""}`;
+    <div class="mb-5"><p class="text-body text-ink-dim italic border-l-2 border-accent pl-3.5 py-1.5">"${summary}"</p></div>
+    ${items.length ? `<h4 class="font-mono text-label text-ink-dim mb-3">ACTION ITEMS</h4>
+    <ul class="space-y-3">${items.map(item => `<li class="action-item flex items-start gap-3"><input type="checkbox" class="action-checkbox mt-1 bg-inset border-border rounded cursor-pointer"/><span class="text-body text-ink leading-snug">${item}</span></li>`).join("")}</ul>` : ""}
+    ${commitments.length ? `<h4 class="font-mono text-label text-ink-dim mb-3 mt-5">PENDING COMMITMENTS</h4>
+    <ul class="space-y-2">${commitments.map(c => `<li class="text-body text-ink-dim flex items-center gap-2"><span class="text-accent">${icon("chevron-right", { size: 13 })}</span>${typeof c === "string" ? c : c.text || ""}</li>`).join("")}</ul>` : ""}`;
 }
 
 // ─── Navigation ──────────────────────────────────────────────────────────────
@@ -264,9 +264,9 @@ function setupTabGroup(selector) {
   const tabs = document.querySelectorAll(selector);
   tabs.forEach(tab => {
     tab.addEventListener("click", () => {
-      tabs.forEach(t => { t.classList.remove("border-primary-container", "text-primary-container"); t.classList.add("border-transparent", "text-on-surface-variant"); });
-      tab.classList.remove("border-transparent", "text-on-surface-variant");
-      tab.classList.add("border-primary-container", "text-primary-container");
+      tabs.forEach(t => { t.classList.remove("border-accent", "text-accent"); t.classList.add("border-transparent", "text-ink-faint"); });
+      tab.classList.remove("border-transparent", "text-ink-faint");
+      tab.classList.add("border-accent", "text-accent");
       activeFounderFilter = tab.dataset.filter;
       renderCommitments();
       // Sync header buttons
@@ -283,9 +283,9 @@ function setupTabGroup(selector) {
 
 function syncTabs(selector, founder) {
   const tabs = document.querySelectorAll(selector);
-  tabs.forEach(t => { t.classList.remove("border-primary-container", "text-primary-container"); t.classList.add("border-transparent", "text-on-surface-variant"); });
+  tabs.forEach(t => { t.classList.remove("border-accent", "text-accent"); t.classList.add("border-transparent", "text-ink-faint"); });
   const match = document.querySelector(`${selector}[data-filter="${founder}"]`);
-  if (match) { match.classList.remove("border-transparent", "text-on-surface-variant"); match.classList.add("border-primary-container", "text-primary-container"); }
+  if (match) { match.classList.remove("border-transparent", "text-ink-faint"); match.classList.add("border-accent", "text-accent"); }
 }
 
 function updateCommitmentTabs(founder) {
