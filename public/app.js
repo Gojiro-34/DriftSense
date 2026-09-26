@@ -11,8 +11,7 @@ function showToast(message, type = "success") {
   const container = document.getElementById("toast-container");
   const toast = document.createElement("div");
   toast.className = `toast toast-${type}`;
-  const names = { success: "check-circle", error: "x-circle", info: "info" };
-  toast.innerHTML = `${icon(names[type] || "info", { size: 17 })}${message}`;
+  toast.textContent = message;
   container.appendChild(toast);
   setTimeout(() => { toast.style.animation = "slideOut 0.3s ease-in forwards"; setTimeout(() => toast.remove(), 300); }, 3000);
 }
@@ -26,7 +25,7 @@ function skeletonCards(count, container) {
 
 function skeletonRows(count, container) {
   container.innerHTML = Array(count).fill("").map(() =>
-    `<div class="bg-inset border border-border rounded p-3 flex items-center justify-between" style="min-height:52px"><div class="flex items-center gap-4 flex-1"><div class="skeleton" style="width:28px;height:28px;border-radius:50%"></div><div class="flex-1"><div class="skeleton skeleton-text" style="width:70%"></div><div class="skeleton" style="width:50px;height:12px"></div></div></div></div>`
+    `<div class="px-4 py-3 flex items-center justify-between" style="min-height:48px"><div class="flex-1"><div class="skeleton skeleton-text" style="width:60%"></div><div class="skeleton" style="width:44px;height:10px"></div></div></div>`
   ).join("");
 }
 
@@ -48,7 +47,7 @@ async function fetchConflicts() {
     if (typeof buildRiskFeed === "function") buildRiskFeed(allCommitments, lastConflicts);
   } catch (err) {
     console.error("fetchConflicts:", err);
-    const errHtml = `<div class="empty-state">${icon("cloud-off", { size: 32 })}<p>Failed to load conflicts</p></div>`;
+    const errHtml = `<div class="empty-state">Failed to load conflicts</div>`;
     container.innerHTML = errHtml;
     if (containerFull) containerFull.innerHTML = errHtml;
   }
@@ -68,7 +67,7 @@ async function fetchCommitments() {
     renderCommitments();
   } catch (err) {
     console.error("fetchCommitments:", err);
-    const errHtml = `<div class="empty-state">${icon("cloud-off", { size: 32 })}<p>Failed to load commitments</p></div>`;
+    const errHtml = `<div class="empty-state">Failed to load commitments</div>`;
     container.innerHTML = errHtml;
     if (containerFull) containerFull.innerHTML = errHtml;
   }
@@ -96,7 +95,7 @@ async function fetchBriefings() {
     if (samElFull) renderBriefing("sam", samData, samElFull);
   } catch (err) {
     console.error("fetchBriefings:", err);
-    const errHtml = `<div class="empty-state">${icon("cloud-off", { size: 32 })}<p>Failed to load</p></div>`;
+    const errHtml = `<div class="empty-state">Failed to load</div>`;
     paulEl.innerHTML = errHtml; samEl.innerHTML = errHtml;
     if (paulElFull) paulElFull.innerHTML = errHtml;
     if (samElFull) samElFull.innerHTML = errHtml;
@@ -111,7 +110,7 @@ async function captureMessage() {
   const text = textEl.value.trim();
   if (!text) { showToast("Please enter a message to analyze.", "error"); return; }
   btn.disabled = true;
-  btn.innerHTML = `<span class="spinner" style="border-color:rgba(4,33,29,0.35);border-top-color:transparent"></span> Analyzing Alignment...`;
+  btn.innerHTML = `<span class="spinner"></span>Analyzing…`;
   btn.style.opacity = "0.7";
   clearAnalysisResult();
   showAnalysisProgress();
@@ -130,7 +129,7 @@ async function captureMessage() {
     const result = await res.json();
     clearAnalysisProgress();
     showAnalysisResult(result);
-    showToast("Message captured and analyzed!", "success");
+    showToast("Message captured and analyzed", "success");
     textEl.value = "";
     fetchConflicts();
     fetchCommitments();
@@ -141,57 +140,50 @@ async function captureMessage() {
   } finally {
     btn.disabled = false;
     btn.style.opacity = "1";
-    btn.innerHTML = `${icon("cpu", { size: 16 })} Analyze with AI`;
+    btn.innerHTML = `Analyze message`;
   }
 }
 
 // ─── Renderers ───────────────────────────────────────────────────────────────
 function renderConflicts(conflicts, container) {
   if (!conflicts.length) {
-    container.innerHTML = `<div class="empty-state lg:col-span-2">${icon("shield-check", { size: 30, className: "text-ok" })}<p class="text-[15px] font-semibold text-ink-dim">No active conflicts</p><p class="text-body text-ink-faint mt-1">Your founding team is aligned.</p></div>`;
+    container.innerHTML = `<div class="empty-state lg:col-span-2 bg-panel">No active conflicts — your founding team is aligned.</div>`;
     return;
   }
   container.innerHTML = conflicts.map(c => {
     const sev = (c.severity || "medium").toUpperCase();
-    const borderClass = sev === "HIGH" ? "border-danger/60" : sev === "MEDIUM" ? "border-caution/60" : "border-border-strong";
-    const badgeClass = sev === "HIGH" ? "border-danger bg-danger-bg text-danger" : sev === "MEDIUM" ? "border-caution bg-caution-bg text-caution" : "border-border-strong text-ink-dim";
-    const iconName = sev === "HIGH" ? "alert-circle" : sev === "MEDIUM" ? "alert-triangle" : "info";
-    const title = c.title || c.description || "Conflict Detected";
+    const sevClass = sev === "HIGH" ? "text-danger" : sev === "MEDIUM" ? "text-caution" : "text-ink-faint";
+    const title = c.title || c.description || "Conflict detected";
     const paulSaid = c.paulSaid || c.commitmentA || "";
     const samSaid = c.samSaid || c.commitmentB || "";
-    return `<div class="bg-panel border ${borderClass} rounded p-4">
-      <div class="flex justify-between items-start mb-2"><div>
-        <div class="inline-flex items-center gap-1 border ${badgeClass} font-mono text-[10px] px-1.5 py-0.5 rounded mb-1.5">${icon(iconName, { size: 11 })} ${sev}</div>
-        <h3 class="font-mono text-[14px] font-semibold text-ink mt-1">${title}</h3>
-      </div></div>
-      <div class="space-y-2.5">
-        ${paulSaid ? `<div class="bg-inset border border-border rounded p-2.5"><p class="font-mono text-[10px] font-semibold text-ink-faint mb-1 tracking-wide">PAUL SAID</p><p class="font-mono text-[12.5px] leading-relaxed text-ink">"${paulSaid}"</p></div>` : ""}
-        ${samSaid ? `<div class="bg-inset border border-border rounded p-2.5"><p class="font-mono text-[10px] font-semibold text-ink-faint mb-1 tracking-wide">SAM SAID</p><p class="font-mono text-[12.5px] leading-relaxed text-ink">"${samSaid}"</p></div>` : ""}
+    return `<div class="bg-panel p-5">
+      <span class="text-label ${sevClass} uppercase">${sev}</span>
+      <h3 class="text-[14px] font-semibold text-ink mt-1.5 mb-3">${title}</h3>
+      <div class="space-y-2.5 mb-4">
+        ${paulSaid ? `<div><p class="text-meta text-ink-faint mb-0.5">Paul said</p><p class="text-body text-ink-dim">"${paulSaid}"</p></div>` : ""}
+        ${samSaid ? `<div><p class="text-meta text-ink-faint mb-0.5">Sam said</p><p class="text-body text-ink-dim">"${samSaid}"</p></div>` : ""}
       </div>
-      <button onclick='openMediation(${JSON.stringify(c).replace(/'/g,"&#39;")})' class="mt-4 w-full border border-accent text-accent font-mono text-label py-2.5 rounded hover:bg-accent/10 transition-colors duration-150 flex items-center justify-center gap-2">${icon("gavel", { size: 14 })}ENTER MEDIATION</button>
+      <button onclick='openMediation(${JSON.stringify(c).replace(/'/g,"&#39;")})' class="link-btn">Open mediation →</button>
     </div>`;
   }).join("");
 }
 
 function buildCommitmentHtml(filtered) {
   if (!filtered.length) {
-    return `<div class="empty-state">${icon("clipboard", { size: 28 })}<p class="text-ink-dim">No commitments found</p></div>`;
+    return `<div class="empty-state">No commitments found</div>`;
   }
   return filtered.map(c => {
     const owner = (c.owner || c.founder || "?").toLowerCase();
     const initial = owner.charAt(0).toUpperCase();
-    const avatarBg = owner === "paul" || initial === "P" ? "#c98a3a" : "#3f8fc9";
-    const avatarText = owner === "paul" || initial === "P" ? "#2a1700" : "#001e2d";
     const src = (c.source || "manual").toUpperCase();
     const status = (c.status || "pending").toUpperCase();
-    const statusClass = status === "DONE" ? "border-ok bg-ok-bg text-ok" : status === "OVERDUE" ? "border-danger bg-danger-bg text-danger" : "border-border-strong text-ink-dim";
-    return `<div class="bg-inset border border-border rounded p-3 flex items-center justify-between">
-      <div class="flex items-center gap-3.5">
-        <div class="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0" style="background:${avatarBg};color:${avatarText}">${initial}</div>
-        <div><p class="font-medium text-ink text-body">${c.text || ""}</p>
-        <span class="font-mono text-[10px] tracking-wide font-medium text-ink-faint bg-panel px-1.5 py-0.5 rounded border border-border">${src}</span></div>
+    const statusClass = status === "DONE" ? "text-ok" : status === "OVERDUE" ? "text-danger" : "text-ink-faint";
+    return `<div class="px-4 py-3 flex items-center justify-between">
+      <div class="flex-1 min-w-0">
+        <p class="text-body text-ink truncate">${c.text || ""}</p>
+        <p class="text-meta text-ink-faint mt-0.5">${owner.charAt(0).toUpperCase() + owner.slice(1)} · ${src}</p>
       </div>
-      <span class="border ${statusClass} font-mono text-[10px] px-2 py-1 rounded whitespace-nowrap flex-shrink-0 ml-3">${status}</span>
+      <span class="text-label ${statusClass} uppercase whitespace-nowrap ml-4">${status}</span>
     </div>`;
   }).join("");
 }
@@ -207,27 +199,23 @@ function renderCommitments() {
 }
 
 function renderBriefing(founder, data, el) {
-  if (!data) { el.innerHTML = `<div class="empty-state">${icon("cloud-off", { size: 28 })}<p>Failed to load</p></div>`; return; }
+  if (!data) { el.innerHTML = `<div class="empty-state">Failed to load</div>`; return; }
   const isPaul = founder === "paul";
-  const avatarBg = isPaul ? "#c98a3a" : "#3f8fc9";
-  const avatarText = isPaul ? "#2a1700" : "#001e2d";
-  const initial = isPaul ? "P" : "S";
   const name = isPaul ? "Paul" : "Sam";
-  const role = isPaul ? "Business Focus" : "Technical Focus";
+  const role = isPaul ? "Business focus" : "Technical focus";
   const summary = data.summary || data.briefing?.summary || "No briefing available.";
   const items = data.actionItems || data.briefing?.actionItems || [];
   const commitments = data.pendingCommitments || data.briefing?.urgentItems || [];
   el.innerHTML = `
-    <div class="flex items-center gap-3.5 mb-4 pb-4 border-b border-border">
-      <div class="w-10 h-10 rounded-full flex items-center justify-center text-[15px] font-bold flex-shrink-0" style="background:${avatarBg};color:${avatarText}">${initial}</div>
-      <div><h3 class="font-h3 text-[17px] font-bold text-ink">${name}</h3>
-      <span class="font-mono text-label text-ink-faint mt-0.5 block">${role}</span></div>
+    <div class="mb-4 pb-4 border-b border-border">
+      <h3 class="text-[15px] font-semibold text-ink">${name}</h3>
+      <span class="text-meta text-ink-faint">${role}</span>
     </div>
-    <div class="mb-5"><p class="text-body text-ink-dim italic border-l-2 border-accent pl-3.5 py-1.5">"${summary}"</p></div>
-    ${items.length ? `<h4 class="font-mono text-label text-ink-dim mb-3">ACTION ITEMS</h4>
-    <ul class="space-y-3">${items.map(item => `<li class="action-item flex items-start gap-3"><input type="checkbox" class="action-checkbox mt-1 bg-inset border-border rounded cursor-pointer"/><span class="text-body text-ink leading-snug">${item}</span></li>`).join("")}</ul>` : ""}
-    ${commitments.length ? `<h4 class="font-mono text-label text-ink-dim mb-3 mt-5">PENDING COMMITMENTS</h4>
-    <ul class="space-y-2">${commitments.map(c => `<li class="text-body text-ink-dim flex items-center gap-2"><span class="text-accent">${icon("chevron-right", { size: 13 })}</span>${typeof c === "string" ? c : c.text || ""}</li>`).join("")}</ul>` : ""}`;
+    <p class="text-body text-ink-dim italic mb-5">"${summary}"</p>
+    ${items.length ? `<p class="text-label text-ink-faint uppercase mb-2.5">Action items</p>
+    <ul class="space-y-2.5 mb-5">${items.map(item => `<li class="action-item flex items-start gap-2.5"><input type="checkbox" class="action-checkbox mt-1"/><span class="text-body text-ink leading-snug">${item}</span></li>`).join("")}</ul>` : ""}
+    ${commitments.length ? `<p class="text-label text-ink-faint uppercase mb-2">Pending commitments</p>
+    <ul class="space-y-1.5">${commitments.map(c => `<li class="text-body text-ink-dim">— ${typeof c === "string" ? c : c.text || ""}</li>`).join("")}</ul>` : ""}`;
 }
 
 // ─── Navigation ──────────────────────────────────────────────────────────────
@@ -264,18 +252,16 @@ function setupTabGroup(selector) {
   const tabs = document.querySelectorAll(selector);
   tabs.forEach(tab => {
     tab.addEventListener("click", () => {
-      tabs.forEach(t => { t.classList.remove("border-accent", "text-accent"); t.classList.add("border-transparent", "text-ink-faint"); });
+      tabs.forEach(t => { t.classList.remove("border-ink", "text-ink"); t.classList.add("border-transparent", "text-ink-faint"); });
       tab.classList.remove("border-transparent", "text-ink-faint");
-      tab.classList.add("border-accent", "text-accent");
+      tab.classList.add("border-ink", "text-ink");
       activeFounderFilter = tab.dataset.filter;
       renderCommitments();
-      // Sync header buttons
       document.querySelectorAll(".founder-btn").forEach(b => b.classList.remove("active"));
       if (activeFounderFilter !== "all") {
         const match = document.querySelector(`.founder-btn[data-founder="${activeFounderFilter}"]`);
         if (match) match.classList.add("active");
       }
-      // Sync the other tab group
       syncTabs(selector === ".commitment-tab" ? ".commitment-tab-full" : ".commitment-tab", activeFounderFilter);
     });
   });
@@ -283,9 +269,9 @@ function setupTabGroup(selector) {
 
 function syncTabs(selector, founder) {
   const tabs = document.querySelectorAll(selector);
-  tabs.forEach(t => { t.classList.remove("border-accent", "text-accent"); t.classList.add("border-transparent", "text-ink-faint"); });
+  tabs.forEach(t => { t.classList.remove("border-ink", "text-ink"); t.classList.add("border-transparent", "text-ink-faint"); });
   const match = document.querySelector(`${selector}[data-filter="${founder}"]`);
-  if (match) { match.classList.remove("border-transparent", "text-ink-faint"); match.classList.add("border-accent", "text-accent"); }
+  if (match) { match.classList.remove("border-transparent", "text-ink-faint"); match.classList.add("border-ink", "text-ink"); }
 }
 
 function updateCommitmentTabs(founder) {
@@ -300,7 +286,6 @@ document.addEventListener("DOMContentLoaded", () => {
   setupTabGroup(".commitment-tab");
   setupTabGroup(".commitment-tab-full");
   document.getElementById("capture-btn").addEventListener("click", captureMessage);
-  // Load all data then build risk feed
   Promise.all([fetchCommitments(), fetchConflicts()]).then(() => {
     if (typeof buildRiskFeed === "function") buildRiskFeed(allCommitments, lastConflicts);
   });

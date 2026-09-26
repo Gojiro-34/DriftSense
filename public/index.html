@@ -7,48 +7,39 @@
   <meta name="description" content="AI context-sync agent for startup founding teams. Track commitments, resolve conflicts, and stay aligned."/>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
   <link href="/styles.css" rel="stylesheet"/>
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            bg: "#0b0d10",
-            panel: "#12151a",
-            "panel-raised": "#171b21",
+            bg: "#0a0b0d",
+            panel: "#111317",
             inset: "#08090b",
-            border: "#252a31",
-            "border-strong": "#39414c",
-            ink: "#e7e9ec",
-            "ink-dim": "#9aa2ad",
-            "ink-faint": "#5b6470",
-            accent: "#3fb6a8",
-            "accent-ink": "#04211d",
-            paul: "#c98a3a",
-            sam: "#3f8fc9",
-            danger: "#d1584c",
-            "danger-bg": "#2a1512",
-            caution: "#c99a3f",
-            "caution-bg": "#241a0e",
-            ok: "#4a9d6f",
-            "ok-bg": "#12251c"
+            border: "#1f2228",
+            "border-strong": "#2c3038",
+            ink: "#e4e6ea",
+            "ink-dim": "#8b909a",
+            "ink-faint": "#565b64",
+            accent: "#5c7fc4",
+            paul: "#a9824f",
+            sam: "#4f7fa9",
+            danger: "#c4554f",
+            ok: "#4f9d6f",
+            caution: "#c49a4f"
           },
-          borderRadius: { DEFAULT: "3px", md: "4px", lg: "6px" },
+          borderRadius: { DEFAULT: "2px", md: "3px" },
           fontFamily: {
             sans: ["'Public Sans'", "sans-serif"],
             mono: ["'JetBrains Mono'", "monospace"]
           },
           fontSize: {
-            h1: ["26px", { lineHeight: "1.25", letterSpacing: "-0.01em", fontWeight: "700" }],
-            h2: ["18px", { lineHeight: "1.3", letterSpacing: "-0.005em", fontWeight: "600" }],
-            h3: ["15px", { lineHeight: "1.35", fontWeight: "600" }],
-            label: ["10.5px", { lineHeight: "1", letterSpacing: "0.08em", fontWeight: "600" }],
-            body: ["13.5px", { lineHeight: "1.55", fontWeight: "400" }],
-            data: ["13px", { lineHeight: "1.5", fontWeight: "500" }]
-          },
-          transitionTimingFunction: {
-            DEFAULT: "cubic-bezier(0.4, 0, 0.2, 1)"
+            h1: ["22px", { lineHeight: "1.3", letterSpacing: "-0.01em", fontWeight: "700" }],
+            h2: ["14px", { lineHeight: "1.3", letterSpacing: "0", fontWeight: "600" }],
+            label: ["11px", { lineHeight: "1.4", letterSpacing: "0.04em", fontWeight: "600" }],
+            body: ["13.5px", { lineHeight: "1.6", fontWeight: "400" }],
+            meta: ["12px", { lineHeight: "1.5", fontWeight: "400" }]
           }
         }
       }
@@ -62,95 +53,91 @@
 
 <!-- Header -->
 <header class="flex justify-between items-center px-6 h-14 w-full border-b border-border bg-bg fixed top-0 z-50">
-  <div class="flex items-center gap-3">
-    <span class="text-accent" id="brand-icon"></span>
-    <div class="leading-tight">
-      <h1 class="text-[15px] font-bold tracking-tight text-ink">DriftSense</h1>
-      <p class="font-mono text-label text-ink-faint">MISSION CONTROL</p>
-    </div>
+  <div class="leading-tight">
+    <h1 class="text-[14px] font-bold tracking-tight text-ink">DriftSense</h1>
+    <p class="text-[11px] text-ink-faint">Mission control for founding teams</p>
   </div>
-  <div class="flex items-center gap-2">
-    <button class="founder-btn flex items-center gap-2 px-3 h-8 rounded border border-border bg-panel hover:border-border-strong transition-colors duration-150 text-body text-ink-dim" data-founder="paul">
-      <span class="w-2 h-2 rounded-full" style="background:#c98a3a"></span>Paul
-    </button>
-    <button class="founder-btn flex items-center gap-2 px-3 h-8 rounded border border-border bg-panel hover:border-border-strong transition-colors duration-150 text-body text-ink-dim" data-founder="sam">
-      <span class="w-2 h-2 rounded-full" style="background:#3f8fc9"></span>Sam
-    </button>
+  <div class="flex items-center gap-1 border border-border rounded">
+    <button class="founder-btn px-3 h-7 text-[12.5px] text-ink-dim border-r border-border" data-founder="paul">Paul</button>
+    <button class="founder-btn px-3 h-7 text-[12.5px] text-ink-dim" data-founder="sam">Sam</button>
   </div>
 </header>
 
 <!-- Layout -->
 <div class="flex flex-1 pt-14">
   <!-- Sidebar -->
-  <nav class="hidden md:flex flex-col fixed left-0 top-14 h-[calc(100vh-56px)] w-56 border-r border-border bg-bg z-40">
-    <div class="flex-1 overflow-y-auto py-3">
-      <a class="nav-link active flex items-center gap-2.5 py-2.5 px-5 border-l-2 border-transparent text-ink-dim hover:text-ink hover:bg-panel transition-colors duration-150 cursor-pointer text-body" data-section="mission-control" data-icon="dashboard">
-        Mission Control</a>
-      <a class="nav-link flex items-center gap-2.5 py-2.5 px-5 border-l-2 border-transparent text-ink-dim hover:text-ink hover:bg-panel transition-colors duration-150 cursor-pointer text-body" data-section="conflict-resolution" data-icon="gavel">
-        Conflict Resolution</a>
-      <a class="nav-link flex items-center gap-2.5 py-2.5 px-5 border-l-2 border-transparent text-ink-dim hover:text-ink hover:bg-panel transition-colors duration-150 cursor-pointer text-body" data-section="commitment-ledger" data-icon="clipboard-check">
-        Commitment Ledger</a>
-      <a class="nav-link flex items-center gap-2.5 py-2.5 px-5 border-l-2 border-transparent text-ink-dim hover:text-ink hover:bg-panel transition-colors duration-150 cursor-pointer text-body" data-section="daily-briefing" data-icon="list">
-        Daily Briefing</a>
+  <nav class="hidden md:flex flex-col fixed left-0 top-14 h-[calc(100vh-56px)] w-52 border-r border-border bg-bg z-40">
+    <div class="flex-1 overflow-y-auto py-4">
+      <a class="nav-link active block py-2 px-5 border-l-2 border-transparent text-ink-dim hover:text-ink transition-colors duration-150 cursor-pointer text-[13px]" data-section="mission-control">Mission Control</a>
+      <a class="nav-link block py-2 px-5 border-l-2 border-transparent text-ink-dim hover:text-ink transition-colors duration-150 cursor-pointer text-[13px]" data-section="conflict-resolution">Conflict Resolution</a>
+      <a class="nav-link block py-2 px-5 border-l-2 border-transparent text-ink-dim hover:text-ink transition-colors duration-150 cursor-pointer text-[13px]" data-section="commitment-ledger">Commitment Ledger</a>
+      <a class="nav-link block py-2 px-5 border-l-2 border-transparent text-ink-dim hover:text-ink transition-colors duration-150 cursor-pointer text-[13px]" data-section="daily-briefing">Daily Briefing</a>
     </div>
-    <div class="p-5 border-t border-border">
-      <p class="text-ink-faint text-[11px] font-mono">v0.1-alpha</p>
+    <div class="px-5 py-4 border-t border-border">
+      <p class="text-ink-faint text-[11px]">v0.1 — alpha</p>
     </div>
   </nav>
 
   <!-- Main Content -->
-  <main class="flex-1 md:ml-56 p-6 overflow-y-auto">
-    <div class="max-w-6xl mx-auto space-y-10">
+  <main class="flex-1 md:ml-52 p-8 overflow-y-auto">
+    <div class="max-w-5xl mx-auto space-y-12">
 
       <!-- ═══ SECTION: Mission Control ═══ -->
-      <div id="mission-control" class="section-page active space-y-10">
+      <div id="mission-control" class="section-page active space-y-12">
 
         <section id="risk-feed-section">
-          <h2 class="font-h2 text-h2 text-ink mb-3 flex items-center gap-2" data-icon="alert-triangle" data-icon-class="text-caution">Today's Risks</h2>
-          <div id="risk-feed" class="bg-panel border border-border rounded p-3"></div>
+          <div class="flex items-baseline justify-between mb-3">
+            <h2 class="font-h2 text-h2 text-ink">Today's risks</h2>
+          </div>
+          <div id="risk-feed" class="border border-border rounded"></div>
         </section>
 
         <section>
-          <h2 class="font-h2 text-h2 text-ink mb-3 flex items-center gap-2" data-icon="gavel" data-icon-class="text-danger">Active Conflicts</h2>
-          <div id="conflicts-list" class="grid grid-cols-1 lg:grid-cols-2 gap-4"></div>
+          <div class="flex items-baseline justify-between mb-3">
+            <h2 class="font-h2 text-h2 text-ink">Active conflicts</h2>
+          </div>
+          <div id="conflicts-list" class="grid grid-cols-1 lg:grid-cols-2 gap-px bg-border border border-border rounded overflow-hidden"></div>
         </section>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <section class="lg:col-span-2 flex flex-col">
-            <h2 class="font-h2 text-h2 text-ink mb-3 flex items-center gap-2" data-icon="clipboard-check" data-icon-class="text-accent">Commitments</h2>
-            <div class="bg-panel border border-border rounded flex-1 flex flex-col">
+            <div class="flex items-baseline justify-between mb-3">
+              <h2 class="font-h2 text-h2 text-ink">Commitments</h2>
+            </div>
+            <div class="border border-border rounded flex-1 flex flex-col">
               <div class="flex border-b border-border">
-                <button class="commitment-tab px-4 h-9 border-b-2 border-accent text-accent font-mono text-label" data-filter="all">ALL</button>
-                <button class="commitment-tab px-4 h-9 border-b-2 border-transparent text-ink-faint hover:text-ink-dim font-mono text-label transition-colors duration-150" data-filter="paul">PAUL</button>
-                <button class="commitment-tab px-4 h-9 border-b-2 border-transparent text-ink-faint hover:text-ink-dim font-mono text-label transition-colors duration-150" data-filter="sam">SAM</button>
+                <button class="commitment-tab px-4 h-9 border-b-2 border-ink text-ink text-[12.5px] font-medium" data-filter="all">All</button>
+                <button class="commitment-tab px-4 h-9 border-b-2 border-transparent text-ink-faint hover:text-ink-dim text-[12.5px] font-medium transition-colors duration-150" data-filter="paul">Paul</button>
+                <button class="commitment-tab px-4 h-9 border-b-2 border-transparent text-ink-faint hover:text-ink-dim text-[12.5px] font-medium transition-colors duration-150" data-filter="sam">Sam</button>
               </div>
-              <div id="commitments-list" class="p-3 space-y-2 overflow-y-auto max-h-[400px]"></div>
+              <div id="commitments-list" class="divide-y divide-border overflow-y-auto max-h-[400px]"></div>
             </div>
           </section>
 
           <section class="flex flex-col">
-            <h2 class="font-h2 text-h2 text-ink mb-3 flex items-center gap-2" data-icon="log-in" data-icon-class="text-accent">Capture Message</h2>
-            <div class="bg-panel border border-border rounded p-4 flex-1 flex flex-col gap-3.5">
+            <div class="flex items-baseline justify-between mb-3">
+              <h2 class="font-h2 text-h2 text-ink">Capture message</h2>
+            </div>
+            <div class="border border-border rounded p-4 flex-1 flex flex-col gap-3.5">
               <div class="grid grid-cols-2 gap-3">
                 <div>
-                  <label class="block font-mono text-label text-ink-faint mb-1.5">SOURCE</label>
-                  <select id="capture-source" class="w-full bg-inset border border-border rounded px-2.5 h-9 text-body text-ink focus:border-accent outline-none appearance-none">
+                  <label class="block text-label text-ink-faint mb-1.5 uppercase">Source</label>
+                  <select id="capture-source" class="w-full bg-inset border border-border rounded px-2.5 h-9 text-[13px] text-ink focus:border-ink-dim outline-none appearance-none">
                     <option value="gmail">Gmail</option><option value="slack">Slack</option><option value="notion">Notion</option><option value="manual">Manual</option>
                   </select>
                 </div>
                 <div>
-                  <label class="block font-mono text-label text-ink-faint mb-1.5">SENDER</label>
-                  <select id="capture-sender" class="w-full bg-inset border border-border rounded px-2.5 h-9 text-body text-ink focus:border-accent outline-none appearance-none">
+                  <label class="block text-label text-ink-faint mb-1.5 uppercase">Sender</label>
+                  <select id="capture-sender" class="w-full bg-inset border border-border rounded px-2.5 h-9 text-[13px] text-ink focus:border-ink-dim outline-none appearance-none">
                     <option value="paul">Paul</option><option value="sam">Sam</option>
                   </select>
                 </div>
               </div>
               <div class="flex-1 flex flex-col">
-                <label class="block font-mono text-label text-ink-faint mb-1.5">RAW TEXT</label>
-                <textarea id="capture-text" class="w-full flex-1 bg-inset border border-border rounded p-2.5 text-body text-ink outline-none resize-none focus:border-accent" placeholder="Paste message or transcript here..." rows="4"></textarea>
+                <label class="block text-label text-ink-faint mb-1.5 uppercase">Raw text</label>
+                <textarea id="capture-text" class="w-full flex-1 bg-inset border border-border rounded p-2.5 text-[13px] text-ink outline-none resize-none focus:border-ink-dim" placeholder="Paste message or transcript here…" rows="4"></textarea>
               </div>
-              <button id="capture-btn" class="w-full bg-accent text-accent-ink font-semibold text-body h-10 rounded hover:bg-[#4bc6b7] transition-colors duration-150 flex items-center justify-center gap-2 mt-auto">
-                <span data-icon="cpu"></span>Analyze with AI</button>
+              <button id="capture-btn" class="w-full bg-ink text-bg font-semibold text-[13px] h-9 rounded hover:bg-white transition-colors duration-150 mt-auto">Analyze message</button>
               <div id="analysis-progress"></div>
               <div id="analysis-result"></div>
             </div>
@@ -158,47 +145,49 @@
         </div>
 
         <section>
-          <h2 class="font-h2 text-h2 text-ink mb-3 flex items-center gap-2" data-icon="calendar" data-icon-class="text-ink-dim">Daily Briefing</h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div id="briefing-paul" class="bg-panel border border-border rounded p-4"></div>
-            <div id="briefing-sam" class="bg-panel border border-border rounded p-4"></div>
+          <div class="flex items-baseline justify-between mb-3">
+            <h2 class="font-h2 text-h2 text-ink">Daily briefing</h2>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-px bg-border border border-border rounded overflow-hidden">
+            <div id="briefing-paul" class="bg-panel p-5"></div>
+            <div id="briefing-sam" class="bg-panel p-5"></div>
           </div>
         </section>
       </div>
 
       <!-- ═══ SECTION: Conflict Resolution ═══ -->
-      <div id="conflict-resolution" class="section-page space-y-10">
+      <div id="conflict-resolution" class="section-page space-y-12">
         <section>
-          <h2 class="font-h2 text-h2 text-ink mb-2 flex items-center gap-2" data-icon="gavel" data-icon-class="text-danger">Conflict Resolution Center</h2>
+          <h2 class="font-h2 text-h2 text-ink mb-1.5">Conflict resolution center</h2>
           <p class="text-ink-dim text-body mb-4">All detected misalignments between founders. Conflicts are auto-detected when commitments contradict each other.</p>
-          <div id="conflicts-list-full" class="grid grid-cols-1 lg:grid-cols-2 gap-4"></div>
+          <div id="conflicts-list-full" class="grid grid-cols-1 lg:grid-cols-2 gap-px bg-border border border-border rounded overflow-hidden"></div>
         </section>
       </div>
 
       <!-- ═══ SECTION: Commitment Ledger ═══ -->
-      <div id="commitment-ledger" class="section-page space-y-10">
+      <div id="commitment-ledger" class="section-page space-y-12">
         <section>
-          <h2 class="font-h2 text-h2 text-ink mb-2 flex items-center gap-2" data-icon="clipboard-check" data-icon-class="text-accent">Commitment Ledger</h2>
+          <h2 class="font-h2 text-h2 text-ink mb-1.5">Commitment ledger</h2>
           <p class="text-ink-dim text-body mb-4">Complete history of all commitments, decisions, and promises made by the founding team.</p>
-          <div class="bg-panel border border-border rounded flex flex-col">
+          <div class="border border-border rounded flex flex-col">
             <div class="flex border-b border-border">
-              <button class="commitment-tab-full px-4 h-9 border-b-2 border-accent text-accent font-mono text-label" data-filter="all">ALL</button>
-              <button class="commitment-tab-full px-4 h-9 border-b-2 border-transparent text-ink-faint hover:text-ink-dim font-mono text-label transition-colors duration-150" data-filter="paul">PAUL</button>
-              <button class="commitment-tab-full px-4 h-9 border-b-2 border-transparent text-ink-faint hover:text-ink-dim font-mono text-label transition-colors duration-150" data-filter="sam">SAM</button>
+              <button class="commitment-tab-full px-4 h-9 border-b-2 border-ink text-ink text-[12.5px] font-medium" data-filter="all">All</button>
+              <button class="commitment-tab-full px-4 h-9 border-b-2 border-transparent text-ink-faint hover:text-ink-dim text-[12.5px] font-medium transition-colors duration-150" data-filter="paul">Paul</button>
+              <button class="commitment-tab-full px-4 h-9 border-b-2 border-transparent text-ink-faint hover:text-ink-dim text-[12.5px] font-medium transition-colors duration-150" data-filter="sam">Sam</button>
             </div>
-            <div id="commitments-list-full" class="p-3 space-y-2 overflow-y-auto max-h-[600px]"></div>
+            <div id="commitments-list-full" class="divide-y divide-border overflow-y-auto max-h-[600px]"></div>
           </div>
         </section>
       </div>
 
       <!-- ═══ SECTION: Daily Briefing ═══ -->
-      <div id="daily-briefing" class="section-page space-y-10">
+      <div id="daily-briefing" class="section-page space-y-12">
         <section>
-          <h2 class="font-h2 text-h2 text-ink mb-2 flex items-center gap-2" data-icon="calendar" data-icon-class="text-ink-dim">Daily Briefing</h2>
+          <h2 class="font-h2 text-h2 text-ink mb-1.5">Daily briefing</h2>
           <p class="text-ink-dim text-body mb-4">AI-generated daily summary for each founder. Cached once per day — refreshes automatically tomorrow.</p>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div id="briefing-paul-full" class="bg-panel border border-border rounded p-4"></div>
-            <div id="briefing-sam-full" class="bg-panel border border-border rounded p-4"></div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-px bg-border border border-border rounded overflow-hidden">
+            <div id="briefing-paul-full" class="bg-panel p-5"></div>
+            <div id="briefing-sam-full" class="bg-panel p-5"></div>
           </div>
         </section>
       </div>
@@ -207,15 +196,6 @@
   </main>
 </div>
 
-<script src="/icons.js"></script>
-<script>
-  document.getElementById("brand-icon").innerHTML = icon("brand", { size: 20 });
-  document.querySelectorAll("[data-icon]").forEach(el => {
-    const name = el.dataset.icon;
-    const cls = el.dataset.iconClass || "";
-    el.insertAdjacentHTML("afterbegin", icon(name, { size: el.tagName === "H2" ? 16 : 15, className: cls }));
-  });
-</script>
 <script src="/ux.js"></script>
 <script src="/app.js"></script>
 </body>
